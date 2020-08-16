@@ -114,7 +114,7 @@ the `middleware` parameter can be one of the following:
 
 example:
 
-> simple middleware
+> :information_source: simple middleware
 
 ```javascript
 export default (expressApp) => ({
@@ -123,10 +123,9 @@ export default (expressApp) => ({
 })
 ```
 
-> array of middleware
+> :information_source: array of middleware
 
 ```javascript
-// simple middleware
 const m1 = (req, res, next) => next()
 const m2 = (req, res, next) => next()
 
@@ -145,7 +144,7 @@ A route can be a function (likes middleware but without `next` parameter) or an 
 
 examples:
 
-> simple route method
+> :information_source: simple route method
 
 ```javascript
 export default (expressApp) => ({
@@ -153,7 +152,7 @@ export default (expressApp) => ({
 })
 ```
 
-> route method with middleware(s)
+> :information_source: route method with middleware(s)
 
 ```javascript
 export default (expressApp) => ({
@@ -181,6 +180,7 @@ routes
 ├── ignored-js-test.test.js
 └── ignored-ts-test.test.ts
 ```
+
 > :warning: also any `*.test.js` and `*.test.ts` are skipped!
 
 this is useful if you want to have a lib file containts functions that don't have to be a route, so just create the file with `_` prepending character
