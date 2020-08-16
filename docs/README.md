@@ -1,8 +1,8 @@
-# fastify-autoroutes
+# express-automatic-routes
 
-fastify-autoroutes is an innovative way to declare routes in your fastify app.
+express-automatic-routes is an innovative way to declare routes in your express app.
 
-Just specify a directory for routes and fastify-autoroutes will care of import any routes in a same way is defined in your filesystem structures.
+Just specify a directory for routes and express-automatic-routes will care of import any routes in a same way is defined in your filesystem structures.
 
 ## Getting started
 
@@ -11,13 +11,13 @@ Just specify a directory for routes and fastify-autoroutes will care of import a
 Install with npm:
 
 ```sh
-npm i fastify-autoroutes --save
+npm i express-automatic-routes --save
 ```
 
 Install with yarn:
 
 ```sh
-yarn add fastify-autoroutes
+yarn add express-automatic-routes
 ```
 
 ### Initialize plugin
@@ -25,11 +25,12 @@ yarn add fastify-autoroutes
 create a root directory for your autoroutes and pass it to plugin
 
 ```javascript
-const fastify = require('fastify')
-const server = fastify()
-server.register(require('fastify-autoroutes'), {
-  dir: './routes', // routes is my directory in this example
-})
+const express = require('express')
+const autoload = require('express-automatic-routes')
+
+const app = express()
+
+autoload(app, { dir: './routes' }) // routes is my directory in this example
 ```
 
 ### Write your first route
@@ -40,10 +41,10 @@ Javascript:
 //file: ./routes/index.js
 //url: http://your-host
 
-export default (fastifyInstance) => ({
-  get: {
-    handler: async () => 'Hello, Index!'
-  }
+export default (expressApp) => ({
+  get: (request, response) => {
+      response.send('Hello index')
+    }
 })
 
 ```
@@ -54,14 +55,13 @@ Typescript:
 //file: ./routes/index.js
 //url: http://your-host
 
-import { FastifyInstance } from 'fastify'
-import { Resource } from 'fastify-autoroutes'
+import { Application, Request, Response } from 'express'
 
-export default (fastifyInstance: FastifyInstance) => <Resource> {
-  get: {
-    handler: async () => 'Hello, Index!'
-  }
-}
+export default (expressApp: Express.Application) => ({
+  get: (request: Request, response: Response) => {
+    response.send('Hello, Index!')
+  },
+})
 ```
 
 Directory tree of your file system will look like this:
@@ -103,8 +103,6 @@ in this case, the plugin will recursivley scan any routes in directory and map i
 > mapped to url:                       | mapped to url:
 > http://your-host/hello/world         | http://your-host/hello/world/
 > ```
-
-> :information_source: you have to set `ignoreTrailingSlash: true` to make it the same.
 
 ## Ignore routes
 
@@ -168,54 +166,94 @@ Parameters will be injected in route just like normal url matching syntax:
 ```javascript
 //file: ./routes/{userId}/posts.js
 
-export default (fastifyInstance) => ({
-  get: {
-    handler: async (request) => `returning posts of user: ${request.params.userId}`
+export default (expressApp) => ({
+  get: (request, response) => {
+      response.send(`returning posts of user: ${request.params.userId}`)
   }
 })
 ```
 
-## Accepted methods in module
+## Module definition
 
-each file must export a function that accept fastify as parameter, and return an object with the following properties:
+each file must export a function that accept express as parameter, and return an object with the following properties:
 
 ```javascript
-export default (fastifyInstance) => ({
-  delete: {
-    // your handler logic
-  },
-  get: {
-    // your handler logic
-  },
-  head: {
-    // your handler logic
-  },
-  patch: {
-    // your handler logic
-  },
-  post: {
-    // your handler logic
-  },
-  put: {
-    // your handler logic
-  },
-  options: {
-    // your handler logic
-  },
+export default (expressApp) => ({
+  middleware: [ /* your middlewares */ ]
+  delete: { /* your handler logic */},
+  get: { /* your handler logic */  },
+  head: { /* your handler logic */  },
+  patch: { /* your handler logic */  },
+  post: { /* your handler logic */  },
+  put: { /* your handler logic */  },
+  options: { /* your handler logic */  },
 })
+```
 
+## Middleware module definition
+
+the `middleware` parameter can be one of the following:
+
+- `undefined` _(just omit it)_
+- `Middleware function` _(a function complain to [express middleware](https://expressjs.com/en/guide/using-middleware.html) definition)_
+- `An Array of Middleware functions`
+
+example:
+
+> simple middleware
+
+```javascript
+export default (expressApp) => ({
+  middleware: (req, res, next) => next()
+  /* ... */
+})
+```
+
+> array of middleware
+
+```javascript
+// simple middleware
+const m1 = (req, res, next) => next()
+const m2 = (req, res, next) => next()
+
+export default (expressApp) => ({
+  middleware: [m1, m2]
+  /* ... */
+})
 ```
 
 ### Route definition
 
-Each route should be complaint to fastify route: [Method Specification](https://www.fastify.io/docs/latest/Routes/#full-declaration)
+A route can be a function (likes middleware but without `next` parameter) or an object who has the following properties:
 
-the only exceptions is for `url` and `method` which are automatically mapped by project structure.
+- middleware // same as module middleware
+- handler // the handler of the function
+
+examples:
+
+> simple route method
+
+```javascript
+export default (expressApp) => ({
+  get: (req, res) => res.send('Hello There!')
+})
+```
+
+> route method with middleware(s)
+
+```javascript
+export default (expressApp) => ({
+  get: {
+    middleware: (req, res, next) => next()
+    handler: (req, res) => res.send('Hello There!')
+  }
+})
+```
 
 ## Example using Javascript version es3
 
 ```javascript
-module.exports = function (fastifyInstance) {
+module.exports = function (expressApp) {
   return {
     get: {
       handler: function (request, reply) {
@@ -232,13 +270,27 @@ is useful to have typescript for strict type check of the module.
 use definition `Resource` for type check your route
 
 ```typescript
-import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
-import { Resource } from 'fastify-autoroutes'
+import { Application, Request, Response, NextFunction } from 'express'
+import { Resource } from 'express-automatic-routes'
 
-export default (fastify: FastifyInstance) => {
+const myMiddleware = (request: Request, response: Response, next: NextFunction) {
+  // some beautiful code
+
+  next()
+}
+
+export default (express: Application) => {
   return <Resource> {
+    middleware: [myMiddleware]
     post: {
-      handler: async (request: FastifyRequest, reply: FastifyReply) => {
+      middleware: (request: Request, response: Response, next: NextFunction) => {
+        if (true === true) {
+          next()
+        } else {
+          response.status(500).end('sorry server have temporany problem with boolean logic!')
+        }
+      },
+      handler: (request: Request, reply: Response) => {
         return 'Hello, World!'
       },
     },

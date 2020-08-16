@@ -1,12 +1,8 @@
-// import fastifyPlugin from 'fastify-plugin'
-// import { FastifyInstance, RouteOptions } from 'fastify'
-
 import { Application, Request, Response, NextFunction } from 'express'
 
 import process from 'process'
 import path from 'path'
 import fs from 'fs'
-import { Interface } from 'readline'
 
 export const errorLabel = '[ERROR] express-automatic-routes:'
 
