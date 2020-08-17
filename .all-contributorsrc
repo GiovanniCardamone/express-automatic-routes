@@ -21,6 +21,15 @@
         "example",
         "maintenance"
       ]
+    },
+    {
+      "login": "genbs",
+      "name": "Gennaro Bosone",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/6159598?v=4",
+      "profile": "https://www.desidus.it/",
+      "contributions": [
+        "design"
+      ]
     }
   ],
   "contributorsPerLine": 7,
