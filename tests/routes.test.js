@@ -56,6 +56,42 @@ exports.default = function () {
 };
 `
 
+const exampleGetRouteWithMiddleware = `
+module.exports = function (server) {
+  return {
+    middleware: function middleware (req, res, next) {
+      return next();
+    },
+    get: {
+      middleware: function middleware (req, res, next) {
+        return next();
+      },
+      handler: function (request, reply) {
+        reply.end('get')
+      }
+    }
+  }
+}
+`
+
+const exampleGetRouteWithMiddlewareArray = `
+module.exports = function (server) {
+  return {
+    middleware: [function middleware (req, res, next) {
+      return next();
+    }],
+    get: {
+      middleware: [function middleware (req, res, next) {
+        return next();
+      }],
+      handler: function (request, reply) {
+        reply.end('get')
+      }
+    }
+  }
+}
+`
+
 tap.test('simple index', { saveFixture: false }, (t) => {
   const server = express()
 
@@ -338,3 +374,27 @@ tap.test(
       })
   }
 )
+
+tap.test('testing route with middlewares', { saveFixture: false }, (t) => {
+  const server = express()
+
+  const dir = t.testdir({
+    'index.js': exampleGetRouteWithMiddleware,
+  })
+
+  // server.use(express.raw())
+
+  autoroutes(server, {
+    dir: dir,
+    log: false,
+  })
+
+  request(server)
+    .get('/')
+    .expect(200)
+    .end(function (err, res) {
+      t.is(err, null)
+      t.is(res.text, 'get')
+      t.end()
+    })
+})

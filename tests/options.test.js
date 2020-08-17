@@ -7,6 +7,13 @@ const request = require('supertest')
 
 const errorLabel = autoroutes.errorLabel
 
+tap.test('no express app', (t) => {
+  const server = undefined
+
+  t.throws(() => autoroutes(server, {}), Error)
+  t.end()
+})
+
 tap.test('no dir parameters', (t) => {
   const server = express()
 
