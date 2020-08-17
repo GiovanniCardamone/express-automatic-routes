@@ -12,7 +12,7 @@
 [![GitHub license](https://img.shields.io/github/license/GiovanniCardamone/express-automatic-routes.svg)](https://github.com/GiovanniCardamone/express-automatic-routes/blob/master/LICENSE)
 
 ![CI](https://github.com/GiovanniCardamone/express-automatic-routes/workflows/CI/badge.svg?branch=master)
-[![Coverage Status](https://coveralls.io/repos/github/GiovanniCardamone/express-automatic-routes/badge.svg?branch=dev)](https://coveralls.io/github/GiovanniCardamone/express-automatic-routes?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/GiovanniCardamone/express-automatic-routes/badge.svg?branch=master)](https://coveralls.io/github/GiovanniCardamone/express-automatic-routes?branch=master)
 
 </div>
 
@@ -40,7 +40,9 @@ const autoroutes = require('express-automatic-routes')
 
 const app = express()
 
-autoroutes(app, { dir: './<autoroutes-directory>' }) // relative to your cwd
+autoroutes(app, {
+  dir: './<autoroutes-directory>' // relative to your cwd
+})
 ```
 
 ### Create file in autoroutes directory

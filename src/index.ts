@@ -57,7 +57,7 @@ function scan(
 ) {
   const combined = path.join(baseDir, current)
   const combinedStat = fs.statSync(combined)
-  console.log('scanning', combined)
+
   if (combinedStat.isDirectory()) {
     for (const entry of fs.readdirSync(combined)) {
       scan(express, baseDir, path.join(current, entry), log)
@@ -166,8 +166,6 @@ function extract(
   } else {
     routeOptions.middleware =
       routeOptions.middleware === undefined ? [] : routeOptions.middleware
-
-    console.log(routeOptions)
 
     if (Array.isArray(routeOptions.middleware)) {
       return [
