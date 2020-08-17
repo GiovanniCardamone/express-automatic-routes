@@ -40,7 +40,9 @@ const autoroutes = require('express-automatic-routes')
 
 const app = express()
 
-autoroutes(app, { dir: './<autoroutes-directory>' }) // relative to your cwd
+autoroutes(app, {
+  dir: './<autoroutes-directory>' // relative to your cwd
+})
 ```
 
 ### Create file in autoroutes directory
