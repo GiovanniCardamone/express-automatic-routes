@@ -35,8 +35,8 @@ npm install --save express-automatic-routes
 ### Autoload routes
 
 ```js
-const express = require('express')
-const autoroutes = require('express-automatic-routes')
+import express from 'express'
+import autoroutes from 'express-automatic-routes'
 
 const app = express()
 
