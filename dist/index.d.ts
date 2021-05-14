@@ -1,6 +1,6 @@
 import { Application, Request, Response, NextFunction } from 'express';
 export declare const errorLabel = "[ERROR] express-automatic-routes:";
-export declare type ValidMethods = 'DELETE' | 'GET' | 'HEAD' | 'PATCH' | 'POST' | 'PUT' | 'OPTIONS';
+export declare type ValidMethods = 'CHECKOUT' | 'COPY' | 'DELETE' | 'GET' | 'HEAD' | 'LOCK' | 'MERGE' | 'MKACTIVITY' | 'MKCOL' | 'MOVE' | 'M-SEARCH' | 'NOTIFY' | 'OPTIONS' | 'PATCH' | 'POST' | 'PURGE' | 'PUT' | 'REPORT' | 'SEARCH' | 'SUBSCRIBE' | 'TRACE' | 'UNLOCK' | 'UNSUBSCRIBE';
 interface Middleware {
     <T>(req: Request & T, res: Response, next: NextFunction): void;
 }

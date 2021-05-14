@@ -7,22 +7,56 @@ import fs from 'fs'
 export const errorLabel = '[ERROR] express-automatic-routes:'
 
 export type ValidMethods =
+  | 'CHECKOUT'
+  | 'COPY'
   | 'DELETE'
   | 'GET'
   | 'HEAD'
+  | 'LOCK'
+  | 'MERGE'
+  | 'MKACTIVITY'
+  | 'MKCOL'
+  | 'MOVE'
+  | 'M-SEARCH'
+  | 'NOTIFY'
+  | 'OPTIONS'
   | 'PATCH'
   | 'POST'
+  | 'PURGE'
   | 'PUT'
-  | 'OPTIONS'
+  | 'REPORT'
+  | 'SEARCH'
+  | 'SUBSCRIBE'
+  | 'TRACE'
+  | 'UNLOCK'
+  | 'UNSUBSCRIBE'
+
+
 
 const validMethods = [
+  'checkout',
+  'copy',
   'delete',
   'get',
   'head',
+  'lock',
+  'merge',
+  'mkactivity',
+  'mkcol',
+  'move',
+  'm-search',
+  'notify',
+  'options',
   'patch',
   'post',
+  'purge',
   'put',
-  'options',
+  'report',
+  'search',
+  'subscribe',
+  'trace',
+  'unlock',
+  'unsubscribe',
 ]
 
 interface Middleware {
@@ -69,7 +103,7 @@ function scan(
 
 function isAcceptableFile(file: string, stat: fs.Stats): boolean {
   return (
-    ( file.endsWith('.js') || file.endsWith('.ts') ) &&
+    (file.endsWith('.js') || file.endsWith('.ts')) &&
     !path.basename(file).startsWith('.') &&
     !path.basename(file).startsWith('_') &&
     !file.endsWith('.map') &&
@@ -160,8 +194,8 @@ function extract(
     middleware === undefined
       ? []
       : Array.isArray(middleware)
-      ? middleware
-      : [middleware]
+        ? middleware
+        : [middleware]
 
   if (typeof routeOptions === 'function') {
     return [...routeMiddleware, routeOptions]

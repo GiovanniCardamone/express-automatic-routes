@@ -14,13 +14,29 @@ var path_1 = __importDefault(require("path"));
 var fs_1 = __importDefault(require("fs"));
 exports.errorLabel = '[ERROR] express-automatic-routes:';
 var validMethods = [
+    'checkout',
+    'copy',
     'delete',
     'get',
     'head',
+    'lock',
+    'merge',
+    'mkactivity',
+    'mkcol',
+    'move',
+    'm-search',
+    'notify',
+    'options',
     'patch',
     'post',
+    'purge',
     'put',
-    'options',
+    'report',
+    'search',
+    'subscribe',
+    'trace',
+    'unlock',
+    'unsubscribe',
 ];
 function scan(express, baseDir, current, log) {
     if (log === void 0) { log = false; }
