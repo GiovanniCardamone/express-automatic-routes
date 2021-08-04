@@ -83,6 +83,11 @@ export interface Resource {
   options?: RouteOptions
 }
 
+// Global config options, so we don't need to pass around these settings across recursive functions
+const configOptions = {
+  mount: '',
+}
+
 function scan(
   express: Application,
   baseDir: string,
@@ -162,8 +167,10 @@ function autoload(
 
   for (const [method, route] of Object.entries<RouteOptions>(routes)) {
     if (validMethods.includes(method)) {
+      // Prepend the mount configuration to the url
+      const endpointUrl = configOptions.mount + url
       //@ts-ignore
-      express[method](url, ...extract(middleware, route))
+      express[method](endpointUrl, ...extract(middleware, route))
 
       if (log) {
         console.info(`${method.toUpperCase()} ${url} => ${fullPath}`)
@@ -218,6 +225,7 @@ function extract(
 interface ExpressAutoroutesOptions {
   dir: string
   log?: boolean
+  mount?: string
 }
 
 export default function (
@@ -270,6 +278,9 @@ export default function (
 
     throw new Error(message)
   }
+
+  // Save the mount option in the global config variable, so we don't need to pass it through scan and other recursive function calls
+  configOptions.mount = options.mount ?? ''
 
   try {
     scan(express, dirPath, '', options.log)
