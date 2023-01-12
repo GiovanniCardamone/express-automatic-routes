@@ -52,7 +52,7 @@ autoroutes(app, {
 //url:  `http://your-host/some/route`
 
 export default (expressApp) => ({
-  get: (request, response) {
+  get: (request, response) => {
     response.status(200).send('Hello, Route').end()
   }
 })
@@ -68,7 +68,7 @@ import { Application, Request, Response } from 'express'
 import { Resource } from 'express-automatic-routes'
 
 export default (express: Application) => <Resource> {
-  get: (request: Request, response: Response) {
+  get: (request: Request, response: Response) => {
     response.status(200).send('Hello, Route!').end()
   }
 }
