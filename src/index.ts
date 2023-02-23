@@ -1,4 +1,4 @@
-import { Application, Request, Response, NextFunction } from 'express'
+import { Application, RequestHandler } from 'express'
 
 import process from 'process'
 import path from 'path'
@@ -31,8 +31,6 @@ export type ValidMethods =
   | 'UNLOCK'
   | 'UNSUBSCRIBE'
 
-
-
 const validMethods = [
   'checkout',
   'copy',
@@ -59,21 +57,15 @@ const validMethods = [
   'unsubscribe',
 ]
 
-interface Middleware {
-  <T>(req: Request & T, res: Response, next: NextFunction): void
-}
-
-type Route = (request: Request, response: Response) => any
-
 type MiddlewareRoute = {
-  middleware: Middleware | Middleware[]
-  handler: Route
+  middleware: RequestHandler | RequestHandler[]
+  handler: RequestHandler
 }
 
-export type RouteOptions = Route | MiddlewareRoute
+export type RouteOptions = RequestHandler | MiddlewareRoute
 
 export interface Resource {
-  middleware?: Middleware | Middleware[]
+  middleware?: RequestHandler | RequestHandler[]
   delete?: RouteOptions
   get?: RouteOptions
   head?: RouteOptions
@@ -160,7 +152,7 @@ function autoload(
 
   const routes = module(express)
 
-  let middleware: undefined | Middleware | Middleware[] = undefined
+  let middleware: undefined | RequestHandler | RequestHandler[] = undefined
   if (routes.middleware) {
     middleware = routes.middleware
   }
@@ -194,15 +186,15 @@ function loadModule(path: string, log: boolean) {
 }
 
 function extract(
-  middleware: undefined | Middleware | Middleware[],
+  middleware: undefined | RequestHandler | RequestHandler[],
   routeOptions: RouteOptions
-): Middleware[] {
-  const routeMiddleware: Middleware[] =
+): RequestHandler[] {
+  const routeMiddleware: RequestHandler[] =
     middleware === undefined
       ? []
       : Array.isArray(middleware)
-        ? middleware
-        : [middleware]
+      ? middleware
+      : [middleware]
 
   if (typeof routeOptions === 'function') {
     return [...routeMiddleware, routeOptions]
@@ -285,8 +277,13 @@ export default function (
   try {
     scan(express, dirPath, '', options.log)
   } catch (error) {
-    log && console.error(error.message)
-
+    if (log) {
+      if (error instanceof Error) {
+        console.error(error.message)
+      } else {
+        console.error(error)
+      }
+    }
     throw error
   }
 }
