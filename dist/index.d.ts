@@ -1,17 +1,13 @@
-import { Application, Request, Response, NextFunction } from 'express';
+import { Application, RequestHandler } from 'express';
 export declare const errorLabel = "[ERROR] express-automatic-routes:";
-export declare type ValidMethods = 'CHECKOUT' | 'COPY' | 'DELETE' | 'GET' | 'HEAD' | 'LOCK' | 'MERGE' | 'MKACTIVITY' | 'MKCOL' | 'MOVE' | 'M-SEARCH' | 'NOTIFY' | 'OPTIONS' | 'PATCH' | 'POST' | 'PURGE' | 'PUT' | 'REPORT' | 'SEARCH' | 'SUBSCRIBE' | 'TRACE' | 'UNLOCK' | 'UNSUBSCRIBE';
-interface Middleware {
-    <T>(req: Request & T, res: Response, next: NextFunction): void;
-}
-declare type Route = (request: Request, response: Response) => any;
-declare type MiddlewareRoute = {
-    middleware: Middleware | Middleware[];
-    handler: Route;
+export type ValidMethods = 'CHECKOUT' | 'COPY' | 'DELETE' | 'GET' | 'HEAD' | 'LOCK' | 'MERGE' | 'MKACTIVITY' | 'MKCOL' | 'MOVE' | 'M-SEARCH' | 'NOTIFY' | 'OPTIONS' | 'PATCH' | 'POST' | 'PURGE' | 'PUT' | 'REPORT' | 'SEARCH' | 'SUBSCRIBE' | 'TRACE' | 'UNLOCK' | 'UNSUBSCRIBE';
+type MiddlewareRoute = {
+    middleware: RequestHandler | RequestHandler[];
+    handler: RequestHandler;
 };
-export declare type RouteOptions = Route | MiddlewareRoute;
+export type RouteOptions = RequestHandler | MiddlewareRoute;
 export interface Resource {
-    middleware?: Middleware | Middleware[];
+    middleware?: RequestHandler | RequestHandler[];
     delete?: RouteOptions;
     get?: RouteOptions;
     head?: RouteOptions;
@@ -23,6 +19,7 @@ export interface Resource {
 interface ExpressAutoroutesOptions {
     dir: string;
     log?: boolean;
+    mount?: string;
 }
 export default function (express: Application, options: ExpressAutoroutesOptions): void;
 export {};

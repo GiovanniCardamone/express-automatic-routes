@@ -1,8 +1,12 @@
 "use strict";
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -38,6 +42,10 @@ var validMethods = [
     'unlock',
     'unsubscribe',
 ];
+// Global config options, so we don't need to pass around these settings across recursive functions
+var configOptions = {
+    mount: '',
+};
 function scan(express, baseDir, current, log) {
     if (log === void 0) { log = false; }
     var combined = path_1.default.join(baseDir, current);
@@ -84,7 +92,7 @@ function replaceParamsToken(token) {
 function autoload(express, fullPath, url, log) {
     var module = loadModule(fullPath, log);
     if (typeof module !== 'function') {
-        throw new Error(exports.errorLabel + " module " + fullPath + " must be valid js/ts module and should export route methods definitions");
+        throw new Error("".concat(exports.errorLabel, " module ").concat(fullPath, " must be valid js/ts module and should export route methods definitions"));
     }
     var routes = module(express);
     var middleware = undefined;
@@ -94,10 +102,12 @@ function autoload(express, fullPath, url, log) {
     for (var _i = 0, _a = Object.entries(routes); _i < _a.length; _i++) {
         var _b = _a[_i], method = _b[0], route = _b[1];
         if (validMethods.includes(method)) {
+            // Prepend the mount configuration to the url
+            var endpointUrl = configOptions.mount + url;
             //@ts-ignore
-            express[method].apply(express, __spreadArray([url], extract(middleware, route)));
+            express[method].apply(express, __spreadArray([endpointUrl], extract(middleware, route), false));
             if (log) {
-                console.info(method.toUpperCase() + " " + url + " => " + fullPath);
+                console.info("".concat(method.toUpperCase(), " ").concat(url, " => ").concat(fullPath));
             }
         }
     }
@@ -119,36 +129,36 @@ function extract(middleware, routeOptions) {
             ? middleware
             : [middleware];
     if (typeof routeOptions === 'function') {
-        return __spreadArray(__spreadArray([], routeMiddleware), [routeOptions]);
+        return __spreadArray(__spreadArray([], routeMiddleware, true), [routeOptions], false);
     }
     else {
         routeOptions.middleware =
             routeOptions.middleware === undefined ? [] : routeOptions.middleware;
         if (Array.isArray(routeOptions.middleware)) {
-            return __spreadArray(__spreadArray(__spreadArray([], routeMiddleware), routeOptions.middleware), [
+            return __spreadArray(__spreadArray(__spreadArray([], routeMiddleware, true), routeOptions.middleware, true), [
                 routeOptions.handler,
-            ]);
+            ], false);
         }
         else {
-            return __spreadArray(__spreadArray([], routeMiddleware), [routeOptions.middleware, routeOptions.handler]);
+            return __spreadArray(__spreadArray([], routeMiddleware, true), [routeOptions.middleware, routeOptions.handler], false);
         }
     }
 }
 function default_1(express, options) {
-    var _a;
+    var _a, _b;
     var log = (_a = options.log) !== null && _a !== void 0 ? _a : true;
     if (!express) {
-        var message = exports.errorLabel + " express application must be passed";
+        var message = "".concat(exports.errorLabel, " express application must be passed");
         log && console.log(message);
         throw new Error(message);
     }
     if (!options.dir) {
-        var message = exports.errorLabel + " dir must be specified";
+        var message = "".concat(exports.errorLabel, " dir must be specified");
         log && console.error(message);
         throw new Error(message);
     }
     if (typeof options.dir !== 'string') {
-        var message = exports.errorLabel + " dir must be the path of autoroutes-directory";
+        var message = "".concat(exports.errorLabel, " dir must be the path of autoroutes-directory");
         log && console.error(message);
         throw new Error(message);
     }
@@ -163,20 +173,29 @@ function default_1(express, options) {
         dirPath = path_1.default.join(process_1.default.cwd(), process_1.default.argv[1], '..', options.dir);
     }
     if (!fs_1.default.existsSync(dirPath)) {
-        var message = exports.errorLabel + " dir " + dirPath + " does not exists";
+        var message = "".concat(exports.errorLabel, " dir ").concat(dirPath, " does not exists");
         log && console.error(message);
         throw new Error(message);
     }
     if (!fs_1.default.statSync(dirPath).isDirectory()) {
-        var message = exports.errorLabel + " dir " + dirPath + " must be a directory";
+        var message = "".concat(exports.errorLabel, " dir ").concat(dirPath, " must be a directory");
         log && console.error(message);
         throw new Error(message);
     }
+    // Save the mount option in the global config variable, so we don't need to pass it through scan and other recursive function calls
+    configOptions.mount = (_b = options.mount) !== null && _b !== void 0 ? _b : '';
     try {
         scan(express, dirPath, '', options.log);
     }
     catch (error) {
-        log && console.error(error.message);
+        if (log) {
+            if (error instanceof Error) {
+                console.error(error.message);
+            }
+            else {
+                console.error(error);
+            }
+        }
         throw error;
     }
 }
